@@ -19,7 +19,7 @@ Laboratory4/
 ```
 
 > [!NOTE]
-> The detailed lab report, including all experimental results and analysis, can be found [here](Report/Laboratory4-report.pdf).
+> The detailed lab report, including all experimental results and analysis, can be found [here](report/Laboratory4-report.pdf).
 
 ## Lab Objectives & Requirements
 
