@@ -10,33 +10,45 @@
 % DOCUMENT CLASS CONFIGURATION
 % =============================================================================
 % Use the ACM large 1-column format class from your template directory
-\documentclass[acmlarge]{template/column-format-template/acmart}
+\documentclass[acmlarge,10pt]{template/column-format-template/acmart}
 
 % =============================================================================
 % PACKAGE IMPORTS
 % =============================================================================
 
 % --- Graphics and Visual Elements ---
-\usepackage{graphicx}     % For including graphics
-\usepackage{xcolor}       % For colors
-\usepackage{subcaption}   % For subfigures and subtables
+\usepackage{graphicx}        % For including graphics
+\usepackage{xcolor}          % For colors
+\usepackage{subcaption}      % For subfigures and subtables
+\usepackage[most]{tcolorbox} % For colored boxes
 
 % --- Math and Algorithms ---
-\usepackage{amsmath}      % For advanced math formatting
-\usepackage{algorithm}    % For algorithm pseudocode
-\usepackage{algorithmic}  % For algorithm pseudocode
+\usepackage{amsmath}         % For advanced math formatting
+\usepackage{algorithm}       % For algorithm pseudocode
+\usepackage{algorithmic}     % For algorithm pseudocode
 
 % --- Tables and Lists ---
-\usepackage{booktabs}     % For professional tables
-\usepackage{enumitem}     % For customizing list formatting and styles
+\usepackage{booktabs}        % For professional tables
+\usepackage{enumitem}        % For customizing list formatting and styles
 
 % --- Code and Text Formatting ---
-\usepackage{listings}     % For code listings and snippets
-\usepackage{titlesec}     % For custom section formatting
-\usepackage{url}          % For URLs in bibliography
+\usepackage{listings}        % For code listings and snippets
+\usepackage{titlesec}        % For custom section formatting
+\usepackage{url}             % For URLs in bibliography
 
 % --- Navigation and References ---
-\usepackage{hyperref}     % For links and references (load last)
+\usepackage{hyperref}        % For links and references (load last)
+
+% =============================================================================
+% PROFESSOR'S REQUIREMENTS OVERRIDES
+% =============================================================================
+% Override ACM template margins to match professor's specification (1in margins)
+% Note: geometry package is already loaded by acmart.cls, so we use \newgeometry
+\newgeometry{
+    a4paper,              % Use A4 paper size
+    margin=1in,           % Set all margins to 1 inch as requested
+    includeheadfoot=false % Don't include headers/footers in margin calculation
+}
 
 % =============================================================================
 % CUSTOM SETTINGS AND CONFIGURATIONS
@@ -118,6 +130,7 @@
 \newcommand{\appendixpath}{appendix/}   % Path to appendix directory
 \newcommand{\imagespath}{images/}       % Path to images directory
 \newcommand{\bibliopath}{bibliography/} % Path to bibliography directory
+\newcommand{\labimagespath}{../lab/results/images/} % Path to lab results images directory
 
 % --- Custom Section Title Formatting ---
 % TODO: uncomment if custom section formatting is desired
@@ -158,7 +171,7 @@
 \authornote{The authors collaborated closely in developing this project.}
 \email{andrea.botticella@studenti.polito.it}
 \affiliation{%
-  \institution{Politecnico di Torino}
+  \institution{s347291, Politecnico di Torino}
   \city{Turin}
   \country{Italy}
 }
@@ -167,7 +180,7 @@
 \authornotemark[1]
 \email{elia.innocenti@studenti.polito.it}
 \affiliation{%
-  \institution{Politecnico di Torino}
+  \institution{s345388, Politecnico di Torino}
   \city{Turin}
   \country{Italy}
 }
@@ -176,65 +189,13 @@
 \authornotemark[1]
 \email{simone.romano2@studenti.polito.it}
 \affiliation{%
-  \institution{Politecnico di Torino}
+  \institution{s344024, Politecnico di Torino}
   \city{Turin}
   \country{Italy}
 }
 
 % --- Header Information ---
 \renewcommand{\shortauthors}{Botticella, Innocenti, and Romano}
-
-% =============================================================================
-% ACM CCS CONCEPTS
-% =============================================================================
-% FIXME: update and verify CCS concepts for each report
-
-\begin{CCSXML}
-<ccs2012>
-   <concept>
-       <concept_id>10010147.10010257.10010321.10010337</concept_id>
-       <concept_desc>Computing methodologies~Supervised learning by classification</concept_desc>
-       <concept_significance>500</concept_significance>
-   </concept>
-   <concept>
-       <concept_id>10010147.10010257.10010321.10010335</concept_id>
-       <concept_desc>Computing methodologies~Unsupervised learning</concept_desc>
-       <concept_significance>500</concept_significance>
-   </concept>
-   <concept>
-       <concept_id>10010147.10010257.10010339</concept_id>
-       <concept_desc>Computing methodologies~Natural language processing</concept_desc>
-       <concept_significance>400</concept_significance>
-   </concept>
-   <concept>
-       <concept_id>10010147.10010257.10010236</concept_id>
-       <concept_desc>Computing methodologies~Machine learning</concept_desc>
-       <concept_significance>400</concept_significance>
-   </concept>
-   <concept>
-       <concept_id>10010147.10010528.10010531</concept_id>
-       <concept_desc>Computing methodologies~Machine learning approaches</concept_desc>
-       <concept_significance>300</concept_significance>
-   </concept>
-   <concept>
-       <concept_id>10002978.10003006.10011634</concept_id>
-       <concept_desc>Security and privacy~Intrusion detection systems</concept_desc>
-       <concept_significance>200</concept_significance>
-   </concept>
-</ccs2012>
-\end{CCSXML}
-
-% FIXME: update and verify CCS descriptions for each report
-\ccsdesc[500]{Computing methodologies~Supervised learning by classification}
-\ccsdesc[500]{Computing methodologies~Unsupervised learning}
-\ccsdesc[400]{Computing methodologies~Natural language processing}
-\ccsdesc[400]{Computing methodologies~Machine learning}
-\ccsdesc[300]{Computing methodologies~Machine learning approaches}
-\ccsdesc[200]{Security and privacy~Intrusion detection systems}
-
-% --- Keywords ---
-% FIXME: update and verify keywords for each report
-\keywords{Machine learning, supervised learning, unsupervised learning, language models, text classification, clustering, intent classification, SSH shell attacks, security log analysis}
 
 % =============================================================================
 % DOCUMENT STRUCTURE
@@ -246,28 +207,35 @@
 % --- Title Page ---
 \maketitle
 
+% Remove "Publication date: ..." from all pages after the first
+\fancyfoot[RO,LE]{}
+
 % --- Table of Contents ---
 % TODO: verify if ToC is needed for final document
-\setcounter{tocdepth}{1}
-\tableofcontents
+% \setcounter{tocdepth}{1}
+% \tableofcontents
 
 % --- Main Content Sections ---
 \input{\sectionspath introduction}
+% \input{\sectionspath task1}
+% \input{\sectionspath task2}
+% \input{\sectionspath task3}
+% \input{\sectionspath task4}
 \input{\sectionspath conclusion}
 
 % --- Appendix ---
-\clearpage
-\appendix
-\input{\appendixpath appendix}
+% \clearpage
+% \appendix
+% \input{\appendixpath appendix}
 
 % =============================================================================
 % BIBLIOGRAPHY
 % =============================================================================
 % TODO: verify bibliography configuration for final document
 
-\nocite{*} % Include all references from the .bib file
-\bibliographystyle{template/ACM-Reference-Format}
-\bibliography{\bibliopath references}
+% \nocite{*} % Include all references from the .bib file
+% \bibliographystyle{template/ACM-Reference-Format}
+% \bibliography{\bibliopath references}
 
 % =============================================================================
 % END OF DOCUMENT
