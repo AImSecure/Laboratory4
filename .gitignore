@@ -6,6 +6,7 @@ out/
 
 # Temporary files
 tmp/
+run/
 
 # Python cache
 __pycache__/
