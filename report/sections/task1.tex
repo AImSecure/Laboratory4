@@ -1,0 +1,72 @@
+\section{TASK 1: DATASET CHARACTERIZATION} \label{sec:task1}
+
+The labelled data comprise \textbf{251 training sessions} and \textbf{108 test
+sessions}. Each session is represented by a raw command string and a list of
+MITRE tactics aligned with its space-separated Bash words.
+
+\subsection{Label Distribution} \label{subsec:task1_labels}
+
+\textbf{Distinct tactics and imbalance.} The dataset contains seven tactics:
+Discovery, Execution, Persistence, Impact, Defense Evasion, Not Malicious Yet,
+and Other. Figure~\ref{fig:task1_tag_distribution} reports their word-level
+frequencies in both partitions. The two distributions have a similar shape:
+Discovery dominates with \textbf{52.37\%} of training words and
+\textbf{53.36\%} of test words, followed by Execution
+(\textbf{28.23\%}/\textbf{25.30\%}) and Persistence
+(\textbf{9.87\%}/\textbf{11.02\%}). Every remaining class accounts for less
+than 4\% of either split.
+
+This imbalance is important for the modelling stage: accuracy alone will be
+insufficient, because a classifier can perform well on the dominant tactics
+while neglecting minority behaviors such as Impact or Other. Macro-averaged
+metrics and per-class F1 scores are therefore necessary.
+
+\begin{figure}[tbp]
+    \centering
+    \includegraphics[width=0.88\linewidth]{\imagespath Task1/tag_distribution_barplot.png}
+    \caption{Distribution of MITRE tactic labels over Bash words in the training
+    and test partitions.}
+    \label{fig:task1_tag_distribution}
+\end{figure}
+
+\subsection{Contextual Meaning of \texttt{echo}} \label{subsec:task1_echo}
+
+\textbf{Observed labels.} In the training set, \texttt{echo} occurs with six
+different tactics: Persistence (104 occurrences), Execution (39), Discovery
+(31), Not Malicious Yet (8), Impact (6), and Other (4). A command name is
+therefore not sufficient to determine its tactic.
+
+\textbf{Persistence example.} In the sequence
+\texttt{echo root:<password> | chpasswd | bash}, the emitted string is consumed
+by \texttt{chpasswd} to modify credentials. The command contributes to
+maintaining access and is consequently labelled Persistence.
+
+\textbf{Execution example.} In
+\texttt{echo <encoded payload> | base64 --decode | bash}, the output is decoded
+and passed directly to a shell. Here, \texttt{echo} participates in launching a
+payload and is labelled Execution. These examples show that tactic assignment
+depends on neighboring words and downstream use, motivating a contextual
+sequence model rather than a command-to-label lookup table.
+
+\subsection{Session Lengths} \label{subsec:task1_lengths}
+
+\textbf{Length variability.} Training sessions range from 2 to 224 Bash words,
+with mean \textbf{45.70} and median \textbf{17}. Test sessions have the same
+range but are generally longer, with mean \textbf{57.38} and median
+\textbf{23.5}. The large gap between means and medians indicates a
+right-skewed distribution: many sessions are short, while a small number of
+long traces extend the tail.
+
+Figure~\ref{fig:task1_session_ecdf} visualizes the empirical cumulative
+distribution over the labelled sessions. The long tail is relevant because
+the number of Bash words does not directly equal the number of model tokens:
+unusual shell strings can be fragmented into many subwords and exceed a
+transformer's context limit even when the word count appears manageable.
+
+\begin{figure}[tbp]
+    \centering
+    \includegraphics[width=0.92\linewidth]{\imagespath Task1/session_length_ecdf.png}
+    \caption{ECDF of the number of Bash words per labelled SSH session in the
+    training and test partitions, shown on linear and logarithmic scales.}
+    \label{fig:task1_session_ecdf}
+\end{figure}

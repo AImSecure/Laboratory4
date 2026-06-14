@@ -20,6 +20,7 @@
 \usepackage{graphicx}        % For including graphics
 \usepackage{xcolor}          % For colors
 \usepackage{subcaption}      % For subfigures and subtables
+\usepackage{float}           % For controlled float placement
 \usepackage[most]{tcolorbox} % For colored boxes
 
 % --- Math and Algorithms ---
@@ -30,6 +31,7 @@
 % --- Tables and Lists ---
 \usepackage{booktabs}        % For professional tables
 \usepackage{enumitem}        % For customizing list formatting and styles
+\usepackage{array}           % For fixed-width table columns
 
 % --- Code and Text Formatting ---
 \usepackage{listings}        % For code listings and snippets
@@ -42,13 +44,14 @@
 % =============================================================================
 % PROFESSOR'S REQUIREMENTS OVERRIDES
 % =============================================================================
-% Override ACM template margins to match professor's specification (1in margins)
-% Note: geometry package is already loaded by acmart.cls, so we use \newgeometry
-\newgeometry{
+% Override ACM template paper size and margins.
+% geometry is already loaded by acmart.cls; \geometry can also change paper size.
+\geometry{
     a4paper,              % Use A4 paper size
     margin=1in,           % Set all margins to 1 inch as requested
     includeheadfoot=false % Don't include headers/footers in margin calculation
 }
+\setlength{\headheight}{12pt}
 
 % =============================================================================
 % CUSTOM SETTINGS AND CONFIGURATIONS
@@ -78,12 +81,8 @@
 % --- Hyperref Configuration ---
 % FIXME: update and fix hyperref settings for final version
 \hypersetup{
-    colorlinks=false,            % Disable colored links (use borders instead)
-    linkbordercolor=1 0 0,       % Red border around internal links
-    citebordercolor=0 1 0,       % Green border around citations
-    urlbordercolor=0 1 1,        % Cyan border around URLs
-    filebordercolor=0 .5 .5,     % Teal border around file links
-    pdfpagemode=UseOutlines,     % Open the PDF with bookmarks visible
+    hidelinks,
+    pdfpagemode=UseOutlines,
 }
 
 % --- Custom Commands ---
@@ -95,6 +94,19 @@
 % Configure bullet points with customized size
 \setlist[itemize,1]{label={\Large\textbullet}} % First level: larger bullet point
 \setlist[itemize,2]{label={\Large\textbullet}, leftmargin=2em} % Second level: larger bullet point and indented by 2em
+
+% --- Compact float and heading spacing ---
+\captionsetup{font=small,skip=3pt}
+\captionsetup[subfigure]{font=small,skip=2pt}
+\setlength{\textfloatsep}{8pt plus 1pt minus 2pt}
+\setlength{\floatsep}{6pt plus 1pt minus 2pt}
+\setlength{\intextsep}{7pt plus 1pt minus 2pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{2pt}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.8}
 
 % =============================================================================
 % ACM TEMPLATE CUSTOMIZATION
@@ -149,9 +161,8 @@
 %   {}                            % Code before title body
 
 % --- Section Spacing Adjustments ---
-% TODO: uncomment if custom spacing is needed
-% \titlespacing*{\section}{0pt}{2.5ex plus 1ex minus .2ex}{1.5ex plus .2ex}
-% \titlespacing*{\subsection}{0pt}{2.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+\titlespacing*{\section}{0pt}{1.5ex plus .4ex minus .2ex}{0.8ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{1.2ex plus .3ex minus .2ex}{0.6ex plus .2ex}
 
 % =============================================================================
 % DOCUMENT CONTENT
@@ -217,11 +228,11 @@
 
 % --- Main Content Sections ---
 \input{\sectionspath introduction}
-% \input{\sectionspath task1}
-% \input{\sectionspath task2}
+\input{\sectionspath task1}
+\input{\sectionspath task2}
 % \input{\sectionspath task3}
 % \input{\sectionspath task4}
-\input{\sectionspath conclusion}
+% \input{\sectionspath conclusion}
 
 % --- Appendix ---
 % \clearpage

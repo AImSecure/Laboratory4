@@ -1,6 +1,16 @@
 % introduction.tex
 
-% Section Title
 \section{INTRODUCTION} \label{sec:introduction}
 
-    % text
+SSH honeypots record commands, flags, parameters, and separators entered by
+remote users. In this laboratory, each space-separated Bash entity is treated
+as an SSH word and is associated with a MITRE tactic describing the adversary's
+intent. The objective is to build a Named Entity Recognition pipeline that can
+learn these contextual labels from a small annotated dataset and later support
+the analysis of unlabelled sessions.
+
+The workflow comprises four stages: \textbf{dataset characterization},
+\textbf{tokenization analysis}, \textbf{transformer fine-tuning}, and
+\textbf{inference with tactic fingerprints}. This report follows the same
+order. All payloads are treated strictly as text: long encoded strings are
+truncated when required and are never decoded or executed.
