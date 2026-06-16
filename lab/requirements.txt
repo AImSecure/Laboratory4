@@ -11,8 +11,17 @@ scikit-learn>=1.3.0
 
 # PyTorch for neural networks
 torch>=2.1.0
+torchvision>=0.16.0
+
+# Pre-trained language models and datasets
+transformers>=4.40.0
+datasets>=2.18.0
+
+# Stratification, progress reporting, and runtime information
+iterative-stratification>=0.1.9
+tqdm>=4.66.0
+psutil>=5.9.0
 
 # Jupyter for notebooks
 jupyter>=1.0.0
 jupyterlab>=4.0.0  # optional, for a better interface
-
