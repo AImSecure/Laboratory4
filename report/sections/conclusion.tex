@@ -1,6 +1,22 @@
 % conclusion.tex
 
-% Section Title
 \section{CONCLUSIONS} \label{sec:conclusions}
 
-    % text
+The laboratory confirms that SSH honeypot sessions can be treated effectively
+as contextual token sequences rather than as isolated command names.
+Tokenization is a central design choice: before preprocessing, long encoded
+strings create pathological sequences, while truncating words above 30
+characters makes both BERT and UnixCoder usable under the 512-token limit.
+
+In the NER stage, pre-training is clearly beneficial. Naked BERT remains well
+below pre-trained BERT, and the code-oriented UnixCoder model obtains the best
+overall performance, with the highest test macro F1 and session fidelity. The
+frozen-layer experiments show a practical trade-off: training only part of the
+encoder reduces computational cost, but full fine-tuning still provides the
+best balanced performance.
+
+Finally, inference on CyberLab logs shows how the trained model can support
+security analysis. Command-level tactic profiles reveal that commands such as
+\texttt{echo} and \texttt{rm} are strongly context-dependent, while fingerprint
+analysis exposes persistent behaviours and high-volume December bursts that
+are compatible with automated attack campaigns.

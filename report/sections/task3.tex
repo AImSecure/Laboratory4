@@ -1,0 +1,188 @@
+\section{TASK 3: MODEL TRAINING} \label{sec:task3}
+
+The NER task is formulated as word-level MITRE tactic prediction after
+subword tokenization. Labels are aligned with the first token of each Bash word,
+while continuation pieces are ignored by the loss and metrics. The original
+training split is further divided into \textbf{202 training sessions} and
+\textbf{49 validation sessions} using multilabel stratification at session
+level, so that rare tactics are represented more reliably during model
+selection. The held-out test set contains \textbf{108 sessions}.
+
+\subsection{Validation Strategy and Fine-Tuning Setup} \label{subsec:task3_setup}
+
+For the full fine-tuning experiments, model selection is based on validation
+macro F1 together with validation loss. Macro F1 is the main classification
+criterion because the labelled dataset is imbalanced, while validation loss is
+used to detect unstable convergence or late overfitting. All final numbers in
+the tables are computed on the held-out test set only after selecting the
+configuration from the validation histories.
+
+\textbf{Pre-trained BERT.} The first model is \texttt{bert-base-uncased}
+fine-tuned end-to-end for token classification. Despite the small labelled
+dataset, the model reaches \textbf{84.76\% token accuracy}, \textbf{61.97\%
+macro F1}, and \textbf{79.97\% average session fidelity} on the test set
+(Table~\ref{tab:task3_performance}). This is a useful result, but the gap
+between accuracy and macro F1 shows that the model is mostly strong on frequent
+classes and less reliable on minority tactics.
+
+Figure~\ref{fig:task3_bert_lr} shows the validation behaviour for the BERT
+learning-rate search. The smallest rate is stable but slow, while larger rates
+improve faster and then become more irregular. The selected checkpoint is
+therefore not simply the last epoch, but the epoch that gives the best
+validation compromise before the model starts fitting the small training split
+too closely.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\linewidth]{\imagespath Task3/bert_pretrained_lr_comparison.png}
+    \caption{Validation loss and macro F1 curves for pre-trained BERT across
+    learning rates.}
+    \label{fig:task3_bert_lr}
+\end{figure}
+
+\textbf{Naked BERT baseline.} To isolate the contribution of pre-training, the
+same BERT architecture is trained from random initialization. Its macro F1 drops
+to \textbf{44.17\%}, confirming that the task is not solved equally well by any
+large architecture when only 251 labelled sessions are available. Pre-training
+therefore provides a strong prior, even though it was learned mostly on natural
+language rather than shell logs.
+
+\textbf{UnixCoder.} The code-oriented \texttt{microsoft/unixcoder-base} model is
+the best full fine-tuned model. It reaches \textbf{87.10\% accuracy},
+\textbf{73.50\% macro F1}, and \textbf{86.29\% fidelity}, improving over
+pre-trained BERT by \textbf{11.53 macro-F1 points}. This supports the hypothesis
+that a model pre-trained on code-like data is better suited to SSH sessions,
+which contain commands, paths, flags, separators, and encoded strings rather
+than natural prose.
+
+The UnixCoder validation curves in Figure~\ref{fig:task3_unixcoder_lr} show a
+clearer separation between useful and less useful learning rates. The selected
+configuration reaches the best validation macro F1 without requiring the very
+late epochs, which is important because the training set has only a few hundred
+sessions. This behaviour supports using UnixCoder as the backbone for the
+subsequent frozen-layer experiments and for inference.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\linewidth]{\imagespath Task3/unixcoder_lr_comparison.png}
+    \caption{Validation loss and macro F1 curves for UnixCoder across learning
+    rates.}
+    \label{fig:task3_unixcoder_lr}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption{Test performance and validation score for the trained NER models.}
+    \label{tab:task3_performance}
+    \scriptsize
+    \begin{tabular}{lrrrrrr}
+        \toprule
+        \textbf{Model} & \textbf{Acc.} & \textbf{Prec.} & \textbf{Rec.} &
+        \textbf{Macro F1} & \textbf{Fidelity} & \textbf{Val F1} \\
+        \midrule
+        BERT pre-trained & 84.76 & 75.68 & 56.51 & 61.97 & 79.97 & 73.23 \\
+        Naked BERT & 73.95 & 67.68 & 41.08 & 44.17 & 75.06 & 56.53 \\
+        UnixCoder & \textbf{87.10} & \textbf{86.63} & \textbf{68.80} &
+        \textbf{73.50} & \textbf{86.29} & \textbf{79.88} \\
+        UnixCoder Last2+Head & 83.89 & 75.36 & 61.11 & 64.85 & 83.05 & 72.24 \\
+        UnixCoder Head Only & 76.98 & 68.13 & 48.50 & 52.57 & 76.34 & 59.41 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\linewidth]{\imagespath Task3/model_comparison.png}
+    \caption{Comparison of token accuracy, macro F1, and session fidelity across
+    the trained models.}
+    \label{fig:task3_model_comparison}
+\end{figure}
+
+\subsection{Per-Class Behavior} \label{subsec:task3_per_class}
+
+The per-class F1 plots in Figure~\ref{fig:task3_per_class} make the imbalance
+effect visible. Frequent tactics such as Discovery and Execution are learned
+more consistently, while classes with few examples remain less stable. This is
+the main difficulty of the task: high token accuracy can coexist with weaker
+balanced performance because most words belong to a small number of tactics.
+UnixCoder improves this behavior, but it does not remove the scarcity problem
+for the rarest classes.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{\imagespath Task3/bert_pretrained_per_class_f1.png}
+        \caption{BERT pre-trained.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{\imagespath Task3/unixcoder_per_class_f1.png}
+        \caption{UnixCoder.}
+    \end{subfigure}
+    \caption{Per-class F1 scores for the two fully fine-tuned pre-trained
+    models.}
+    \label{fig:task3_per_class}
+\end{figure}
+
+The normalized confusion matrix in Figure~\ref{fig:task3_unixcoder_cm} provides
+a more detailed view of the best model. The dominant classes are recognized
+reliably, which explains the high token accuracy and session fidelity. The
+remaining errors are concentrated in semantically close or low-support regions:
+some command chains with mixed behaviour are confused between Discovery and
+Execution, while the rarest tactics remain harder to separate because the model
+sees only a small number of labelled examples during fine-tuning.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\linewidth]{\imagespath Task3/unixcoder_confusion_matrix_normalized.png}
+    \caption{Normalized confusion matrix for the fully fine-tuned UnixCoder
+    model on the test set.}
+    \label{fig:task3_unixcoder_cm}
+\end{figure}
+
+This error profile is coherent with the structure of the dataset. Many SSH
+sessions are long pipelines where a word can support more than one adversarial
+intent depending on the downstream command. The model is therefore not only
+learning command names, but also trying to infer the role of each word in a
+local execution context. The confusion matrix confirms that UnixCoder is the
+most reliable candidate, but it also motivates keeping per-class metrics in the
+evaluation rather than relying only on aggregate accuracy.
+
+\subsection{Frozen-Layer Experiments} \label{subsec:task3_frozen}
+
+The best full model is selected using validation macro F1 only; the selected
+backbone is UnixCoder. Two reduced fine-tuning strategies are then tested:
+training only the last two encoder layers plus the classification head, and
+training only the classification head. Table~\ref{tab:task3_training_cost}
+summarizes the computational trade-off.
+
+Freezing most of the encoder reduces trainable parameters from
+\textbf{125.3M} to \textbf{14.2M} and nearly halves training time, from
+\textbf{686.5 s} to \textbf{349.0 s}. However, macro F1 decreases from
+\textbf{73.50\%} to \textbf{64.85\%}. Training only the head is faster
+(\textbf{285.9 s}) and uses only \textbf{5,383 trainable parameters}, but the
+macro F1 falls to \textbf{52.57\%}. Therefore, the pre-trained representation is
+useful, but adapting part of the encoder is still necessary for this domain.
+The frozen settings also require larger learning rates than full fine-tuning,
+especially for the randomly initialized classification head.
+
+\begin{table}[H]
+    \centering
+    \caption{Training configuration and cost for the Task~3 models.}
+    \label{tab:task3_training_cost}
+    \scriptsize
+    \begin{tabular}{lrrrrr}
+        \toprule
+        \textbf{Model} & \textbf{Base LR} & \textbf{Head LR} &
+        \textbf{Trainable} & \textbf{Epoch} & \textbf{Time (s)} \\
+        \midrule
+        BERT pre-trained & 0.00001 & 0.00005 & 108,897,031 & 20 & 761.0 \\
+        Naked BERT & 0.00005 & 0.00005 & 108,897,031 & 13 & 764.0 \\
+        UnixCoder & 0.00002 & 0.00010 & 125,344,519 & 11 & 686.5 \\
+        UnixCoder Last2+Head & 0.00005 & 0.00025 & 14,181,127 & 16 & 349.0 \\
+        UnixCoder Head Only & 0.00100 & 0.00100 & 5,383 & 21 & 285.9 \\
+        \bottomrule
+    \end{tabular}
+\end{table}

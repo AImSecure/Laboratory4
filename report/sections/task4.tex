@@ -1,0 +1,166 @@
+\section{TASK 4: INFERENCE} \label{sec:task4}
+
+The final stage applies the best validation model to the unlabelled
+\texttt{cyberlab.csv} sessions. The selected model is \textbf{UnixCoder}, which
+has the highest validation macro F1 among the fully trained and frozen
+configurations. The same word truncation used in Task~2 and Task~3 is applied
+before inference. Since the inference set is unlabelled, no test metric is
+computed; the model output is used only for qualitative and aggregate analysis.
+For each Bash word, the predicted tactic is taken from the \textbf{first
+sub-token}; if a session is truncated, only words that receive a prediction are
+considered.
+
+The inference dataset contains \textbf{174,262 sessions}, spanning from
+\textbf{2019-09-01} to \textbf{2019-12-30}.
+
+\subsection{Command-Level Tactic Profiles} \label{subsec:task4_commands}
+
+Table~\ref{tab:task4_commands} reports the predicted tactic distribution for
+the required commands. The mapping is not one-to-one. \texttt{grep} is almost
+uniquely associated with \textbf{Discovery}, which is coherent with its common
+use for inspecting system information. \texttt{cat} is also mainly Discovery,
+but it appears as Execution when it belongs to command chains that decode or run
+payloads. \texttt{rm} is mostly Discovery or Execution, with smaller Defense
+Evasion and Persistence components. \texttt{echo} is the most context-dependent
+command: it is predicted as Persistence when it writes credentials or startup
+artifacts, as Execution when it feeds payloads to the shell, and as Discovery
+when used in benign-looking environment checks.
+
+\begin{table}[H]
+    \centering
+    \caption{Predicted MITRE tactic frequencies for selected commands in the
+    inference set.}
+    \label{tab:task4_commands}
+    {\small
+    \renewcommand{\arraystretch}{1.08}
+    \setlength{\tabcolsep}{7pt}
+    \begin{tabular}{@{}llrr@{}}
+        \toprule
+        \textbf{Command} & \textbf{Predicted tactic} & \textbf{Count} &
+        \textbf{Freq. (\%)} \\
+        \midrule
+        \texttt{cat} & Discovery & 724,370 & 84.07 \\
+        \texttt{cat} & Execution & 137,283 & 15.93 \\
+        \texttt{cat} & Not Malicious Yet & 1 & 0.00 \\
+        \texttt{echo} & Persistence & 327,076 & 42.67 \\
+        \texttt{echo} & Discovery & 252,994 & 33.01 \\
+        \texttt{echo} & Execution & 186,177 & 24.29 \\
+        \texttt{echo} & Other & 190 & 0.02 \\
+        \texttt{echo} & Impact & 1 & 0.00 \\
+        \texttt{grep} & Discovery & 996,075 & 99.97 \\
+        \texttt{grep} & Persistence & 302 & 0.03 \\
+        \texttt{rm} & Discovery & 248,848 & 72.14 \\
+        \texttt{rm} & Execution & 82,502 & 23.92 \\
+        \texttt{rm} & Defense Evasion & 8,180 & 2.37 \\
+        \texttt{rm} & Persistence & 5,442 & 1.58 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+For every command--tactic tuple in Table~\ref{tab:task4_commands}, one
+representative session was inspected. The qualitative examples are consistent
+with the aggregate interpretation. For instance, \texttt{cat /proc/cpuinfo | grep name} is a
+Discovery pattern, while \texttt{echo <payload> | bash} is naturally closer to
+Execution. Similarly, \texttt{echo root:<password> | chpasswd | bash} supports
+Persistence because it modifies access credentials, and \texttt{rm -rf} inside
+cleanup chains can contribute to Defense Evasion.
+
+The rare command-tag tuples are also informative. A very small number of
+\texttt{cat} and \texttt{echo} occurrences are assigned to minority labels such
+as Not Malicious Yet, Impact, or Other. These cases should not be interpreted as
+strong global associations; they are better read as local contextual decisions
+inside long command chains. For example, an \texttt{echo} used near destructive
+shell logic can be pulled toward Impact, while an \texttt{echo} embedded in a
+large encoded payload chain may be classified as Other when the surrounding
+context is ambiguous. This reinforces the main observation: the same Bash word
+can play different tactical roles depending on the neighbouring commands.
+
+\subsection{Fingerprint Analysis} \label{subsec:task4_fingerprints}
+
+Each session is converted into a fingerprint, defined as the ordered sequence
+of predicted MITRE tactics. The inference set produces \textbf{1,905 unique
+fingerprints}; \textbf{901} of them occur only once, indicating a long tail of
+rare behaviours. Fingerprints are sorted by date of birth, assigned increasing
+IDs, and counted per day.
+
+Before looking at the temporal structure, the frequency distribution already
+shows that most fingerprints are rare, whereas a small number of recurrent
+patterns account for a large portion of the traffic. This is expected in
+honeypot data: many sessions are minor variants of automated scripts, while
+occasional payloads or command permutations create one-off fingerprints.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.90\linewidth]{\imagespath Task4/fingerprint_frequency_distribution.png}
+    \caption{Distribution of fingerprint frequencies and most common inferred
+    fingerprints.}
+    \label{fig:task4_fingerprint_frequency}
+\end{figure}
+
+Figure~\ref{fig:task4_fingerprint_frequency} makes this imbalance explicit. The
+left panel highlights the long tail of low-frequency fingerprints, while the
+right panel shows that the most common patterns are dominated by repeated
+Discovery-heavy sequences. Therefore, a fingerprinting view is useful because it
+compresses a large inference set into a smaller number of behavioural templates.
+
+Figure~\ref{fig:task4_fingerprint_scatter} shows the required time-vs-ID view.
+Older fingerprints appear near the bottom of the plot. No fingerprint is
+literally present during the entire \textbf{121-day} observation window, but
+some early fingerprints are highly persistent: IDs \textbf{0}, \textbf{11}, and
+\textbf{3} are active for 99, 98, and 96 days respectively. The most common
+fingerprint appears in \textbf{19,247 sessions}.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.96\linewidth]{\imagespath Task4/fingerprint_scatter_plot.png}
+    \caption{Fingerprint IDs over time. Point size and colour encode the number
+    of sessions assigned to a fingerprint on a given day.}
+    \label{fig:task4_fingerprint_scatter}
+\end{figure}
+
+The scatter plot also exposes concentrated bursts that are compatible with
+automated campaigns. The adaptive detector finds \textbf{6 campaign spikes}.
+The strongest burst is fingerprint \textbf{1594}, with \textbf{1,736 sessions}
+on \textbf{2019-12-09} and related spikes on 2019-12-08 and 2019-12-10.
+Fingerprint \textbf{293} shows a similar December concentration, exceeding
+900 sessions per day in the same period. These high-volume fingerprints include
+repeated Discovery chains such as CPU inspection followed by credential or
+payload-related commands, suggesting repeated scripted activity rather than
+isolated manual interaction.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{\imagespath Task4/daily_volume_and_novelty.png}
+    \caption{Daily session volume and novelty dynamics for the inferred
+    fingerprints.}
+    \label{fig:task4_daily_volume}
+\end{figure}
+
+Figure~\ref{fig:task4_daily_volume} provides a complementary aggregate view. The
+daily volume is not uniform: activity grows after mid-October and reaches its
+largest peak in early December, in agreement with the fingerprint spikes
+identified above. The novelty curve is higher at the beginning of the
+collection, when many fingerprints are observed for the first time, and becomes
+lower once repeated behaviours dominate the traffic. This suggests two
+different regimes: an initial phase with many newly observed patterns, followed
+by a period in which recurrent automated behaviours account for a large share
+of the sessions.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{\imagespath Task4/daily_tactic_volume_and_composition.png}
+    \caption{Daily MITRE tactic volume and normalized tactic composition in the
+    inference set.}
+    \label{fig:task4_daily_tactics}
+\end{figure}
+
+The tactic-level view in Figure~\ref{fig:task4_daily_tactics} confirms that the
+traffic volume is largely driven by Discovery-labelled words, but the relative
+composition is not perfectly constant. Execution and Persistence occupy visible
+shares during the central part of the observation window, while the strongest
+December peak is mostly a scale effect: many more sessions are observed, but
+the dominant tactical structure remains similar to the repeated fingerprints
+discussed above. This is useful from an analyst perspective because it
+distinguishes between a completely new behavioural mix and a large-scale replay
+of already observed attack patterns.
