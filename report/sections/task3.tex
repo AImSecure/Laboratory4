@@ -1,8 +1,9 @@
 \section{TASK 3: MODEL TRAINING} \label{sec:task3}
 
 The NER task is formulated as word-level MITRE tactic prediction after
-subword tokenization. Labels are aligned with the first token of each Bash word,
-while continuation pieces are ignored by the loss and metrics. The original
+subword tokenization. Each sub-token inherits its parent word's label for both
+training and evaluation; only special tokens (\texttt{[CLS]}, \texttt{[SEP]},
+padding) are excluded via the \texttt{-100} ignore index. The original
 training split is further divided into \textbf{202 training sessions} and
 \textbf{49 validation sessions} using multilabel stratification at session
 level, so that rare tactics are represented more reliably during model
