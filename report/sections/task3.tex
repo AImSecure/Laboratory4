@@ -18,6 +18,9 @@ used to detect unstable convergence or late overfitting. All final numbers in
 the tables are computed on the held-out test set only after selecting the
 configuration from the validation histories.
 
+\vspace{0.2em}
+
+\noindent
 \textbf{Pre-trained BERT.} The first model is \texttt{bert-base-uncased}
 fine-tuned end-to-end for token classification. Despite the small labelled
 dataset, the model reaches \textbf{84.76\% token accuracy}, \textbf{61.97\%
@@ -41,6 +44,7 @@ too closely.
     \label{fig:task3_bert_lr}
 \end{figure}
 
+\noindent
 \textbf{Naked BERT baseline.} To isolate the contribution of pre-training, the
 same BERT architecture is trained from random initialization. Its macro F1 drops
 to \textbf{44.17\%}, confirming that the task is not solved equally well by any
@@ -48,6 +52,9 @@ large architecture when only 251 labelled sessions are available. Pre-training
 therefore provides a strong prior, even though it was learned mostly on natural
 language rather than shell logs.
 
+\vspace{0.2em}
+
+\noindent
 \textbf{UnixCoder.} The code-oriented \texttt{microsoft/unixcoder-base} model is
 the best full fine-tuned model. It reaches \textbf{87.10\% accuracy},
 \textbf{73.50\% macro F1}, and \textbf{86.29\% fidelity}, improving over
@@ -73,9 +80,7 @@ subsequent frozen-layer experiments and for inference.
 
 \begin{table}[H]
     \centering
-    \caption{Test performance and validation score for the trained NER models.}
-    \label{tab:task3_performance}
-    \scriptsize
+    \small
     \begin{tabular}{lrrrrrr}
         \toprule
         \textbf{Model} & \textbf{Acc.} & \textbf{Prec.} & \textbf{Rec.} &
@@ -89,11 +94,16 @@ subsequent frozen-layer experiments and for inference.
         UnixCoder Head Only & 76.98 & 68.13 & 48.50 & 52.57 & 76.34 & 59.41 \\
         \bottomrule
     \end{tabular}
+    \vspace{0.1cm}
+    \caption{Test performance and validation score for the trained NER models.}
+    \label{tab:task3_performance}
 \end{table}
+
+\vspace{-0.1cm}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.82\linewidth]{\imagespath Task3/model_comparison.png}
+    \includegraphics[width=0.78\linewidth]{\imagespath Task3/model_comparison.png}
     \caption{Comparison of token accuracy, macro F1, and session fidelity across
     the trained models.}
     \label{fig:task3_model_comparison}
@@ -114,19 +124,19 @@ for the rarest classes.
     \begin{subfigure}[b]{0.48\linewidth}
         \centering
         \includegraphics[width=\linewidth]{\imagespath Task3/bert_pretrained_per_class_f1.png}
-        \caption{BERT pre-trained.}
+        % \caption{BERT pre-trained.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.48\linewidth}
         \centering
         \includegraphics[width=\linewidth]{\imagespath Task3/unixcoder_per_class_f1.png}
-        \caption{UnixCoder.}
+        % \caption{UnixCoder.}
     \end{subfigure}
-    \caption{Per-class F1 scores for the two fully fine-tuned pre-trained
-    models.}
+    \caption{Per-class F1 scores for (a) BERT and (b) UnixCoder fine-tuned pre-trained models.}
     \label{fig:task3_per_class}
 \end{figure}
 
+\noindent
 The normalized confusion matrix in Figure~\ref{fig:task3_unixcoder_cm} provides
 a more detailed view of the best model. The dominant classes are recognized
 reliably, which explains the high token accuracy and session fidelity. The
@@ -143,6 +153,7 @@ sees only a small number of labelled examples during fine-tuning.
     \label{fig:task3_unixcoder_cm}
 \end{figure}
 
+\noindent
 This error profile is coherent with the structure of the dataset. Many SSH
 sessions are long pipelines where a word can support more than one adversarial
 intent depending on the downstream command. The model is therefore not only
@@ -169,11 +180,11 @@ useful, but adapting part of the encoder is still necessary for this domain.
 The frozen settings also require larger learning rates than full fine-tuning,
 especially for the randomly initialized classification head.
 
+\vspace{0.2cm}
+
 \begin{table}[H]
     \centering
-    \caption{Training configuration and cost for the Task~3 models.}
-    \label{tab:task3_training_cost}
-    \scriptsize
+    \small
     \begin{tabular}{lrrrrr}
         \toprule
         \textbf{Model} & \textbf{Base LR} & \textbf{Head LR} &
@@ -186,4 +197,7 @@ especially for the randomly initialized classification head.
         UnixCoder Head Only & 0.00100 & 0.00100 & 5,383 & 21 & 285.9 \\
         \bottomrule
     \end{tabular}
+    \vspace{0.1cm}
+    \caption{Training configuration and cost for the Task~3 models.}
+    \label{tab:task3_training_cost}
 \end{table}

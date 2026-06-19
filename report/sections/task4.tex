@@ -9,7 +9,6 @@ computed; the model output is used only for qualitative and aggregate analysis.
 For each Bash word, the predicted tactic is taken from the \textbf{first
 sub-token}; if a session is truncated, only words that receive a prediction are
 considered.
-
 The inference dataset contains \textbf{174,262 sessions}, spanning from
 \textbf{2019-09-01} to \textbf{2019-12-30}.
 
@@ -28,10 +27,7 @@ when used in benign-looking environment checks.
 
 \begin{table}[H]
     \centering
-    \caption{Predicted MITRE tactic frequencies for selected commands in the
-    inference set.}
-    \label{tab:task4_commands}
-    {\small
+    {\footnotesize
     \renewcommand{\arraystretch}{1.08}
     \setlength{\tabcolsep}{7pt}
     \begin{tabular}{@{}llrr@{}}
@@ -55,20 +51,24 @@ when used in benign-looking environment checks.
         \texttt{rm} & Persistence & 5,442 & 1.58 \\
         \bottomrule
     \end{tabular}
+    \vspace{0.1cm}
+    \caption{Predicted MITRE tactic frequencies for selected commands in the
+    inference set.}
+    \label{tab:task4_commands}
     }
 \end{table}
 
-As required by the assignment, Table~\ref{tab:task4_examples} lists one
+\noindent
+Table~\ref{tab:task4_examples} lists one
 representative session for each unique (command, predicted tactic) tuple
 observed in Table~\ref{tab:task4_commands}. The examples are the first matching
 session encountered during inference. Since sessions typically contain multiple
 target commands, the same session naturally appears for several tuples.
 
+\vspace{0.1cm}
+
 \begin{table}[H]
     \centering
-    \caption{One example session per (command, predicted tactic) tuple.
-    Sessions containing multiple target commands appear for more than one tuple.}
-    \label{tab:task4_examples}
     \scriptsize
     \renewcommand{\arraystretch}{1.12}
     \begin{tabular}{@{}llp{9.5cm}@{}}
@@ -82,7 +82,7 @@ target commands, the same session naturally appears for several tuples.
         \texttt{echo} & Persistence & \textit{Same session as} \texttt{cat}$\,\to\,$\textit{Execution} \\
         \texttt{echo} & Discovery & \textit{Same session as} \texttt{cat}$\,\to\,$\textit{Discovery} \\
         \texttt{echo} & Execution & \textit{Same session as} \texttt{cat}$\,\to\,$\textit{Execution} \\
-        \texttt{echo} & Other & {\ttfamily cd /tmp || /var/tmp || /dev/shm; echo "ZXZhbCB1bnBhY2sgdT0+cXtfIkZVWSgiMVA8Rl1DOTctUztSYF0oIj1SPFdFTjhSPFsi...} \\
+        \texttt{echo} & Other & {\ttfamily cd /tmp || /var/tmp || /dev/shm; echo "ZXZhbCB1bnBhY2sgdT0+cXtfIkZVWSgiMVA8Rl1...} \\ %DOTctUztSYF0oIj1SPFdFTjhSPFsi...} \\
         \texttt{echo} & Impact & {\ttfamily echo "Z""IGAZAGA148""8" ; cat /dev/stdin | sh ; \#!/usr/bin/sh ; \#timeout=30 ; killSTDIN() \{ ; processID=\$(ps -u | grep -v 'grep' | grep cat...} \\
         \addlinespace
         \texttt{grep} & Discovery & \textit{Same session as} \texttt{cat}$\,\to\,$\textit{Execution} \\
@@ -94,8 +94,13 @@ target commands, the same session naturally appears for several tuples.
         \texttt{rm} & Persistence & {\ttfamily cat /proc/cpuinfo | grep name | wc -l ; echo "root:9R8X8aKPE6l6"|chpasswd|bash ; echo "321" > /var/tmp/.var03522123 ; rm -rf /var/tmp/.var03522123...} \\
         \bottomrule
     \end{tabular}
+    \vspace{0.1cm}
+    \caption{One example session per (command, predicted tactic) tuple.
+    Sessions containing multiple target commands appear for more than one tuple.}
+    \label{tab:task4_examples}
 \end{table}
 
+\noindent
 The examples confirm that the same Bash word receives different tactic labels
 depending on the surrounding command context. For instance,
 \texttt{cat /proc/cpuinfo | grep name} follows a Discovery pattern, while
@@ -125,14 +130,19 @@ uniformly (as UnixCoder does, given its higher macro F1) collapses many
 near-duplicate sessions into a smaller set of recurrent templates, while a
 noisier model would fragment them into more near-duplicate fingerprints.
 
+\vspace{0.3cm}
+
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.90\linewidth]{\imagespath Task4/fingerprint_frequency_distribution.png}
+    \includegraphics[width=\linewidth]{\imagespath Task4/fingerprint_frequency_distribution.png}
     \caption{Distribution of fingerprint frequencies and most common inferred
     fingerprints.}
     \label{fig:task4_fingerprint_frequency}
 \end{figure}
 
+\vspace{0.2cm}
+
+\noindent
 Figure~\ref{fig:task4_fingerprint_frequency} makes this imbalance explicit. The
 left panel highlights the long tail of low-frequency fingerprints, while the
 right panel shows that the most common patterns are dominated by repeated
@@ -167,6 +177,7 @@ isolated manual interaction.
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.95\linewidth]{\imagespath Task4/daily_volume_and_novelty.png}
+    \vspace{0.2cm}
     \caption{Daily session volume and novelty dynamics for the inferred
     fingerprints.}
     \label{fig:task4_daily_volume}
@@ -184,12 +195,15 @@ of the sessions.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\linewidth]{\imagespath Task4/daily_tactic_volume_and_composition.png}
+    \vspace{1.5cm}
+    \includegraphics[width=0.95\linewidth]{\imagespath Task4/daily_tactic_volume_and_composition.png}
+    \vspace{0.2cm}
     \caption{Daily MITRE tactic volume and normalized tactic composition in the
     inference set.}
     \label{fig:task4_daily_tactics}
 \end{figure}
 
+\noindent
 The tactic-level view in Figure~\ref{fig:task4_daily_tactics} confirms that the
 traffic volume is largely driven by Discovery-labelled words, but the relative
 composition is not perfectly constant. Execution and Persistence occupy visible

@@ -1,8 +1,7 @@
 \section{TASK 1: DATASET CHARACTERIZATION} \label{sec:task1}
 
-The labelled data comprise \textbf{251 training sessions} and \textbf{108 test
-sessions}. Each session is represented by a raw command string and a list of
-MITRE tactics aligned with its space-separated Bash words.
+The labelled data comprise \textbf{251 training sessions} and \textbf{108 test sessions}.
+Each session is represented by a raw command string and a list of MITRE tactics aligned with its space-separated Bash words.
 
 \subsection{Label Distribution} \label{subsec:task1_labels}
 
@@ -21,7 +20,7 @@ insufficient, because a classifier can perform well on the dominant tactics
 while neglecting minority behaviors such as Impact or Other. Macro-averaged
 metrics and per-class F1 scores are therefore necessary.
 
-\begin{figure}[tbp]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.88\linewidth]{\imagespath Task1/tag_distribution_barplot.png}
     \caption{Distribution of MITRE tactic labels over Bash words in the training
@@ -36,11 +35,17 @@ different tactics: Persistence (104 occurrences), Execution (39), Discovery
 (31), Not Malicious Yet (8), Impact (6), and Other (4). A command name is
 therefore not sufficient to determine its tactic.
 
+\vspace{0.2em}
+
+\noindent
 \textbf{Persistence example.} In the sequence
 \texttt{echo root:<password> | chpasswd | bash}, the emitted string is consumed
 by \texttt{chpasswd} to modify credentials. The command contributes to
 maintaining access and is consequently labelled Persistence.
 
+\vspace{0.2em}
+
+\noindent
 \textbf{Execution example.} In
 \texttt{echo <encoded payload> | base64 --decode | bash}, the output is decoded
 and passed directly to a shell. Here, \texttt{echo} participates in launching a

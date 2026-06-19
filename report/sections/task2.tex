@@ -31,9 +31,7 @@ BERT emits \textbf{303 \texttt{[UNK]} tokens}, whereas UniXcoder emits none.
 \begin{table}[tbp]
     \begin{minipage}[t]{0.49\linewidth}
         \centering
-        \caption{Subword tokenization of the selected SSH commands.}
-        \label{tab:task2_commands}
-        \scriptsize
+        \small
         \begin{tabular}{lll}
             \toprule
             \textbf{Command} & \textbf{BERT} & \textbf{UniXcoder} \\
@@ -49,13 +47,14 @@ BERT emits \textbf{303 \texttt{[UNK]} tokens}, whereas UniXcoder emits none.
             \texttt{grep}     & gr, ep       & grep \\
             \bottomrule
         \end{tabular}
+        \vspace{0.1cm}
+        \caption{Subword tokenization of the SSH commands.}
+        \label{tab:task2_commands}
     \end{minipage}
     \hfill
     \begin{minipage}[t]{0.49\linewidth}
         \centering
-        \caption{Training-corpus tokenization before word truncation.}
-        \label{tab:task2_raw_stats}
-        \scriptsize
+        \small
         \begin{tabular}{lrr}
             \toprule
             \textbf{Metric} & \textbf{BERT} & \textbf{UniXcoder} \\
@@ -67,6 +66,9 @@ BERT emits \textbf{303 \texttt{[UNK]} tokens}, whereas UniXcoder emits none.
             Sessions above 512        & 24     & 29 \\
             \bottomrule
         \end{tabular}
+        \vspace{0.1cm}
+        \caption{Training-corpus tokenization before word truncation.}
+        \label{tab:task2_raw_stats}
     \end{minipage}
 \end{table}
 
@@ -83,6 +85,9 @@ the limit, but UniXcoder has a visibly longer tail.
     \label{fig:task2_token_ecdf}
 \end{figure}
 
+\vspace{0.2em}
+
+\noindent
 \textbf{Longest session.} Both maxima occur on the same \textbf{134-word}
 training session. Two words exceed 30 characters; the longest is a
 \textbf{46,860-character encoded payload}, which is kept strictly as text.
